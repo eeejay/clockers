@@ -1,0 +1,165 @@
+body {
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 5px;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 20px);
+  width: calc(100% - 20px);
+  max-width: 480px;
+  justify-content: space-between;
+  margin: 5px;
+  padding: 5px;
+  overflow: hidden;
+}
+
+button[aria-pressed] {
+  display: block;
+  width: 100%;
+  -moz-appearance: none;
+  background-color: #fafafa;
+  border: none;
+  padding: 2rem;
+  text-align: left;
+  position: relative;
+  box-sizing: border-box;
+  border: solid 2px #fafafa;
+}
+
+button[aria-pressed]:focus {
+  border: solid 2px #f4f4f4;
+}
+
+button[aria-pressed]::-moz-focus-inner {
+  border: 0;
+}
+
+button[aria-pressed]::before {
+  content: '';
+  width: 60px;
+  height: 34px;
+  background-color: #2196F3;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: background-color 0.2s;
+}
+
+button[aria-pressed=false]::before {
+  background-color: #ccc;
+}
+
+button[aria-pressed]::after {
+  content: '';
+  width: 26px;
+  height: 26px;
+  background-color: #fff;
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: right 0.2s;
+
+}
+
+button[aria-pressed=false]::after {
+  right: 50px;
+}
+
+.details {
+  width: 200%;
+  display: flex;
+  transition: transform 0.2s;
+}
+
+.details > * {
+  transition: visibility 0.2s;
+}
+
+.clockinput {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+select {
+  display: block;
+  padding: 1rem;
+  width: 100%;
+}
+
+button[aria-pressed=false] + .details {
+  transform: translateX(-50%);
+}
+
+button[aria-pressed=false] + .details > .timezone {
+  visibility: hidden;
+}
+
+button[aria-pressed=true] + .details > .time {
+  visibility: hidden;
+}
+
+.clockinput.time > * {
+  display: block;
+  text-align: center;
+  font-size: 32px;
+  width: 30%;
+}
+
+.clockinput.time > span {
+  font-size: 32px;
+  line-height: 48px;
+}
+
+button:not([aria-pressed]) {
+  -moz-appearance: none;
+  border: none;
+  font-weight: 700;
+  line-height: 3rem;
+  border-radius: 1.5rem;
+  width: 100%;
+}
+
+button.adjust {
+  background-color: #6f5499;
+  color: #fff;
+}
+
+button:disabled.adjust {
+  background-color: #ccc;
+}
+
+button.zero {
+  background-color: red;
+  color: #fff;
+}
+
+hr {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #444;
+}
+
+@media (min-width: 700px) {
+  .main {
+    margin: 20px auto;
+    height: calc(100% - 40px);
+    box-shadow: 5px 5px 5px #000;
+    background-color: #fff;
+    border-radius: 10px;
+  }
+
+  body {
+    background-color: #333;
+  }
+}

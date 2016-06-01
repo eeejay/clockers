@@ -1,0 +1,31 @@
+{
+  "hands" : {
+    "hours": {
+      "motorPins": [26, 27, 28, 29],
+      "limitPin": 25
+    },
+    "minutes": {
+      "motorPins": [0, 2, 1, 4],
+      "limitPin": 24
+    },
+    "seconds": {
+      "motorPins": [5, 6, 10, 11],
+      "limitPin": 23
+    }
+  },
+
+  "movements" : {
+    "smooth": {
+      "label": "Smooth Motion",
+      "handTypes": ["SecondSmoothHand", "MinuteSmoothHand", "HourSmoothHand"]
+    },
+    "tick": {
+      "label": "Tick Motion",
+      "handTypes": ["SecondTickHand", "MinuteTickHand", "HourTickHand"]
+    },
+    "swiss": {
+      "label": "Swiss Railway",
+      "handTypes": ["SecondSwissHand", "MinuteTickHand", "HourTickHand"]
+    }
+  }
+}

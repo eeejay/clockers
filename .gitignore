@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+*.stl
+.sync-config.cson
+*.dxf
+*.ps
+clockers-*.svg
+*.o
+.config.json
+smoothticker
+step
+swissticker
+ticker
+image_settings.sh

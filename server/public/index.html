@@ -1,0 +1,28 @@
+<html>
+  <head>
+    <title>Clockers</title>
+    <link rel="stylesheet" href="/stylesheets/controls.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="main">
+      <h1>Clock</h1>
+      <button id="autotime" aria-pressed="true">Automatic Time</button>
+      <div class="details">
+        <div class="clockinput timezone">
+          <select id="timezones"></select>
+        </div>
+        <div class="clockinput time">
+          <input id="hours" type="number" value="15"><span>:</span><input id="minutes" type="number" value="59"><span>:</span><input id="seconds" type="number" value="10">
+        </div>
+      </div>
+      <div class="clockinput movement">
+        <select id="movements"></select>
+      </div>
+      <button class="adjust" id="adjust">Adjust</button>
+      <hr>
+      <button class="zero" id="zero">Go To Top</button>
+    </div>
+    <script src="javascripts/controls.js"></script>
+  </body>
+</html>

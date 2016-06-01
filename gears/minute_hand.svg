@@ -1,0 +1,772 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- 
+     station-clock.svg
+
+     Copyright (c) 2012 Rüdiger Appel
+     Licensed under the creative common license.
+     
+     Date:    2012-03-23
+     Version: 1.0
+     Email:   ludi(at)me(dot)com
+     Home:    http://www.3Quarks.com/
+-->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   width="25cm"
+   height="25cm"
+   viewBox="-300.00401 0 0 200"
+   id="svg2"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="minute_hand.svg">
+  <metadata
+     id="metadata301">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2266"
+     inkscape:window-height="1354"
+     id="namedview299"
+     showgrid="false"
+     inkscape:zoom="9.44"
+     inkscape:cx="867.9318"
+     inkscape:cy="13.884106"
+     inkscape:window-x="0"
+     inkscape:window-y="55"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
+  <defs
+     id="defs4">
+    <script
+       type="text/javascript"
+       id="script6"><![CDATA[
+
+      // the clock object
+      var clock  = new Object();
+      clock.init = window.setInterval(function() { clock.initialize() }, 50);
+
+      // initialize clock
+      clock.initialize = function() {
+        if (document.getElementById('background') && 
+            document.getElementById('dial') &&
+            document.getElementById('hourHand') &&
+            document.getElementById('minuteHand') &&
+            document.getElementById('secondHand') && 
+            document.getElementById('axisCover')) {
+
+          // get html parameter and set clock attributes
+          if (document.defaultView.frameElement) {
+            var params = document.defaultView.frameElement.getElementsByTagName('param');
+            for (var i = 0; i < params.length; i++) {
+              this[params[i].name] = params[i].value.toLowerCase();
+            }
+          }
+ 
+          // set clock colors
+          this.setColorForElement('background');
+          this.setColorForElement('dial');
+          this.setColorForElement('hourHand');
+          this.setColorForElement('minuteHand');
+          this.setColorForElement('secondHand');
+          this.setColorForElement('axisCover');
+
+          // set clock elements
+          this.setClockDial(this.dial);
+          this.setHourHand(this.hourHand);
+          this.setMinuteHand(this.minuteHand);
+          this.setSecondHand(this.secondHand);
+          this.setAxisCover(this.axisCoverRadius);
+
+          // draw clock
+          this.draw();
+
+          // show clock
+          this.showElement('clock', true);
+
+          // finish initialization and start animation loop
+          window.clearInterval(this.init);
+          var that = this;
+          window.setInterval(function() { that.draw() }, isNaN(this.updateInterval) ? 50 : this.updateInterval);
+        }
+      }
+
+      // draw the clock
+      clock.draw = function() {
+        var now     = new Date();
+        var hours   = now.getHours();
+        var minutes = now.getMinutes();
+        var seconds = now.getSeconds();
+        var millis  = now.getMilliseconds();
+
+        // rotate hour hands
+        this.rotateElement('hourHand', 30 * hours + 0.5 * minutes);
+
+        // rotate minute hand
+        this.rotateElement('minuteHand', 6 * minutes + (this.minuteHandBehavior === 'sweeping' ? 0.1 * seconds : 0));
+
+        // handle "stop to go" second hand
+        if (this.secondHandStopToGo === 'yes' || this.secondHandStopToGo === 'true') {
+          var wait = isNaN(this.secondHandStopTime) ? 1.5 : this.secondHandStopTime;
+          var fact = 60 / (60 - Math.min(30, Math.max(0, wait)));
+          var time = Math.min(60000, fact * (1000 * seconds + millis));
+          seconds  = Math.floor(time / 1000);
+          millis   = time % 1000;
+        }
+
+        // rotate second hand
+        var secondAngle = 6 * seconds;
+        if (this.secondHandBehavior === 'sweeping') {
+          secondAngle += 0.006 * millis;
+        } else if (this.secondHandBehavior === 'swinging') {
+          secondAngle += 3 * (1 + Math.cos(Math.PI + Math.PI * (0.001 * millis)));
+        }
+        this.rotateElement('secondHand', secondAngle);
+      }
+
+      // set element fill and stroke color
+      clock.setColorForElement = function(id) {
+        var element = document.getElementById(id);
+        var color   = this[id + 'Color'];
+        if (color && element) {
+          element.setAttribute('style', 'fill:' + color + '; stroke:' + color);
+        }
+      }
+
+      // set clock dial
+      clock.setClockDial = function(value) {
+        this.showElement('dialSwiss',      value === 'swiss' || value === undefined);
+        this.showElement('dialAustria',    value === 'austria');
+        this.showElement('dialPoints',     value === 'points');
+        this.showElement('dialDIN41091.1', value === 'din 41091.1');
+        this.showElement('dialDIN41091.3', value === 'din 41091.3');
+        this.showElement('dialDIN41091.4', value === 'din 41091.4');
+      }
+
+      // set hour hand
+      clock.setHourHand = function(value) {
+        this.showElement('hourHandSwiss',      value === 'swiss' || value === undefined);
+        this.showElement('hourHandGerman',     value === 'german');
+        this.showElement('hourHandSiemens',    value === 'siemens');
+        this.showElement('hourHandDIN41092.3', value === 'din 41092.3');
+      }
+
+      // set minute hand
+      clock.setMinuteHand = function(value) {
+        this.showElement('minuteHandSwiss',      value === 'swiss' || value === undefined);
+        this.showElement('minuteHandGerman',     value === 'german');
+        this.showElement('minuteHandSiemens',    value === 'siemens');
+        this.showElement('minuteHandDIN41092.3', value === 'din 41092.3');
+      }
+
+      // set second hand
+      clock.setSecondHand = function(value) {
+        this.showElement('secondHandSwiss',      value === 'swiss' || value === undefined);
+        this.showElement('secondHandGerman',     value === 'german');
+        this.showElement('secondHandDIN41071.1', value === 'din 41071.1');
+        this.showElement('secondHandDIN41071.2', value === 'din 41071.2');
+      }
+
+      // set axis cover
+      clock.setAxisCover = function(value) {
+        document.getElementById('axisCoverCircle').setAttribute('r', isNaN(value) ? 0 : value);
+      }
+
+      // show or hide clock element
+      clock.showElement = function(id, visible) {
+        document.getElementById(id).setAttribute('visibility', visible ? 'visible' : 'hidden');
+      }
+
+      // rotate clock element
+      clock.rotateElement = function(id, angle) {
+        document.getElementById(id).setAttribute('transform', 'rotate(' + angle + ', 100, 100)');
+      }
+
+    ]]></script>
+    <!-- hour stroke (swiss) -->
+    <symbol
+       id="hourStrokeSwiss">
+      <rect
+         x="96.25"
+         y="0"
+         width="7.5"
+         height="25"
+         id="rect9" />
+    </symbol>
+    <!-- minute stroke (swiss) -->
+    <symbol
+       id="minuteStrokeSwiss">
+      <rect
+         x="98.5"
+         y="0"
+         width="3"
+         height="7.5"
+         id="rect12" />
+    </symbol>
+    <!-- five minutes strokes (swiss) -->
+    <symbol
+       id="fiveMinutesStrokesSwiss">
+      <use
+         xlink:href="#hourStrokeSwiss"
+         id="use15"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeSwiss"
+         transform="matrix(0.9945219,0.10452846,-0.10452846,0.9945219,11.000657,-9.9050359)"
+         id="use17"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeSwiss"
+         transform="matrix(0.9781476,0.20791169,-0.20791169,0.9781476,22.976409,-18.605929)"
+         id="use19"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeSwiss"
+         transform="matrix(0.95105652,0.30901699,-0.30901699,0.95105652,35.796048,-26.007351)"
+         id="use21"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeSwiss"
+         transform="matrix(0.91354546,0.40673664,-0.40673664,0.91354546,49.319119,-32.02821)"
+         id="use23"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+    </symbol>
+    <!-- quarter strokes (swiss) -->
+    <symbol
+       id="quarterStrokesSwiss">
+      <use
+         xlink:href="#fiveMinutesStrokesSwiss"
+         id="use26"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#fiveMinutesStrokesSwiss"
+         transform="matrix(0.8660254,0.5,-0.5,0.8660254,63.39746,-36.60254)"
+         id="use28"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#fiveMinutesStrokesSwiss"
+         transform="matrix(0.5,0.8660254,-0.8660254,0.5,136.60254,-36.60254)"
+         id="use30"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+    </symbol>
+    <!-- hour stroke (austria) -->
+    <symbol
+       id="hourStrokeAustria">
+      <polygon
+         points="97,22 103,22 104,0 96,0 "
+         id="polygon33" />
+    </symbol>
+    <!-- minute stroke (austria) -->
+    <symbol
+       id="minuteStrokeAustria">
+      <rect
+         x="98.800003"
+         y="0"
+         width="2.4000001"
+         height="7.5"
+         id="rect36" />
+    </symbol>
+    <!-- five minutes strokes (austria) -->
+    <symbol
+       id="fiveMinutesStrokesAustria">
+      <use
+         xlink:href="#hourStrokeAustria"
+         id="use39"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeAustria"
+         transform="matrix(0.9945219,0.10452846,-0.10452846,0.9945219,11.000657,-9.9050359)"
+         id="use41"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeAustria"
+         transform="matrix(0.9781476,0.20791169,-0.20791169,0.9781476,22.976409,-18.605929)"
+         id="use43"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeAustria"
+         transform="matrix(0.95105652,0.30901699,-0.30901699,0.95105652,35.796048,-26.007351)"
+         id="use45"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeAustria"
+         transform="matrix(0.91354546,0.40673664,-0.40673664,0.91354546,49.319119,-32.02821)"
+         id="use47"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+    </symbol>
+    <!-- quarter strokes (austria) -->
+    <symbol
+       id="quarterStrokesAustria">
+      <use
+         xlink:href="#fiveMinutesStrokesAustria"
+         id="use50"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#fiveMinutesStrokesAustria"
+         transform="matrix(0.8660254,0.5,-0.5,0.8660254,63.39746,-36.60254)"
+         id="use52"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#fiveMinutesStrokesAustria"
+         transform="matrix(0.5,0.8660254,-0.8660254,0.5,136.60254,-36.60254)"
+         id="use54"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+    </symbol>
+    <!-- three hour stroke (points) -->
+    <symbol
+       id="threeHourStrokePoints">
+      <circle
+         cx="100"
+         cy="9"
+         r="9"
+         id="circle57" />
+    </symbol>
+    <!-- hour stroke (points) -->
+    <symbol
+       id="hourStrokePoints">
+      <circle
+         cx="100"
+         cy="6"
+         r="6"
+         id="circle60" />
+    </symbol>
+    <!-- quarter strokes (points) -->
+    <symbol
+       id="quarterStrokesPoints">
+      <use
+         xlink:href="#threeHourStrokePoints"
+         id="use63"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#hourStrokePoints"
+         transform="matrix(0.8660254,0.5,-0.5,0.8660254,63.39746,-36.60254)"
+         id="use65"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#hourStrokePoints"
+         transform="matrix(0.5,0.8660254,-0.8660254,0.5,136.60254,-36.60254)"
+         id="use67"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+    </symbol>
+    <!-- three hour stroke (DIN 41091.1) -->
+    <symbol
+       id="threeHourStrokeDIN41091.1">
+      <rect
+         x="95.800003"
+         y="0"
+         width="8.3999996"
+         height="30"
+         id="rect70" />
+    </symbol>
+    <!-- hour stroke (DIN 41091.1) -->
+    <symbol
+       id="hourStrokeDIN41091.1">
+      <rect
+         x="95.800003"
+         y="0"
+         width="8.3999996"
+         height="24"
+         id="rect73" />
+    </symbol>
+    <!-- minute stroke (DIN 41091.1) -->
+    <symbol
+       id="minuteStrokeDIN41091.1">
+      <rect
+         x="98.199997"
+         y="0"
+         width="3.5999999"
+         height="8"
+         id="rect76" />
+    </symbol>
+    <!-- quarter strokes (DIN 41091.1) -->
+    <symbol
+       id="quarterStrokesDIN41091.1">
+      <use
+         xlink:href="#threeHourStrokeDIN41091.1"
+         id="use79"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.1"
+         transform="matrix(0.9945219,0.10452846,-0.10452846,0.9945219,11.000657,-9.9050359)"
+         id="use81"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.1"
+         transform="matrix(0.9781476,0.20791169,-0.20791169,0.9781476,22.976409,-18.605929)"
+         id="use83"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.1"
+         transform="matrix(0.95105652,0.30901699,-0.30901699,0.95105652,35.796048,-26.007351)"
+         id="use85"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.1"
+         transform="matrix(0.91354546,0.40673664,-0.40673664,0.91354546,49.319119,-32.02821)"
+         id="use87"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#hourStrokeDIN41091.1"
+         transform="matrix(0.8660254,0.5,-0.5,0.8660254,63.39746,-36.60254)"
+         id="use89"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.1"
+         transform="matrix(0.80901699,0.58778525,-0.58778525,0.80901699,77.876826,-39.680225)"
+         id="use91"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.1"
+         transform="matrix(0.74314483,0.66913061,-0.66913061,0.74314483,92.598578,-41.227543)"
+         id="use93"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.1"
+         transform="matrix(0.66913061,0.74314483,-0.74314483,0.66913061,107.40142,-41.227543)"
+         id="use95"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.1"
+         transform="matrix(0.58778525,0.80901699,-0.80901699,0.58778525,122.12317,-39.680225)"
+         id="use97"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#hourStrokeDIN41091.1"
+         transform="matrix(0.5,0.8660254,-0.8660254,0.5,136.60254,-36.60254)"
+         id="use99"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.1"
+         transform="matrix(0.40673664,0.91354546,-0.91354546,0.40673664,150.68088,-32.02821)"
+         id="use101"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.1"
+         transform="matrix(0.30901699,0.95105652,-0.95105652,0.30901699,164.20395,-26.007351)"
+         id="use103"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.1"
+         transform="matrix(0.20791169,0.9781476,-0.9781476,0.20791169,177.02359,-18.605929)"
+         id="use105"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.1"
+         transform="matrix(0.10452846,0.9945219,-0.9945219,0.10452846,188.99934,-9.9050359)"
+         id="use107"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+    </symbol>
+    <!-- three hour stroke (DIN 41091.3) -->
+    <symbol
+       id="threeHourStrokeDIN41091.3">
+      <rect
+         x="94"
+         y="0"
+         width="12"
+         height="30"
+         id="rect110" />
+    </symbol>
+    <!-- hour stroke (DIN 41091.3) -->
+    <symbol
+       id="hourStrokeDIN41091.3">
+      <rect
+         x="95"
+         y="0"
+         width="10"
+         height="26"
+         id="rect113" />
+    </symbol>
+    <!-- quarter strokes (DIN 41091.3) -->
+    <symbol
+       id="quarterStrokesDIN41091.3">
+      <use
+         xlink:href="#threeHourStrokeDIN41091.3"
+         id="use116"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#hourStrokeDIN41091.3"
+         transform="matrix(0.8660254,0.5,-0.5,0.8660254,63.39746,-36.60254)"
+         id="use118"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#hourStrokeDIN41091.3"
+         transform="matrix(0.5,0.8660254,-0.8660254,0.5,136.60254,-36.60254)"
+         id="use120"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+    </symbol>
+    <!-- hour stroke (DIN 41091.4) -->
+    <symbol
+       id="hourStrokeDIN41091.4">
+      <rect
+         x="97"
+         y="0"
+         width="6"
+         height="7"
+         id="rect123" />
+    </symbol>
+    <!-- minute stroke (DIN 41091.4) -->
+    <symbol
+       id="minuteStrokeDIN41091.4">
+      <rect
+         x="98.75"
+         y="0"
+         width="2.5"
+         height="7"
+         id="rect126" />
+    </symbol>
+    <!-- five minutes strokes (DIN 41091.4) -->
+    <symbol
+       id="fiveMinutesStrokesDIN41091.4">
+      <use
+         xlink:href="#hourStrokeDIN41091.4"
+         id="use129"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.4"
+         transform="matrix(0.9945219,0.10452846,-0.10452846,0.9945219,11.000657,-9.9050359)"
+         id="use131"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.4"
+         transform="matrix(0.9781476,0.20791169,-0.20791169,0.9781476,22.976409,-18.605929)"
+         id="use133"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.4"
+         transform="matrix(0.95105652,0.30901699,-0.30901699,0.95105652,35.796048,-26.007351)"
+         id="use135"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#minuteStrokeDIN41091.4"
+         transform="matrix(0.91354546,0.40673664,-0.40673664,0.91354546,49.319119,-32.02821)"
+         id="use137"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+    </symbol>
+    <!-- quarter strokes (DIN 41091.4) -->
+    <symbol
+       id="quarterStrokesDIN41091.4">
+      <use
+         xlink:href="#fiveMinutesStrokesDIN41091.4"
+         id="use140"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#fiveMinutesStrokesDIN41091.4"
+         transform="matrix(0.8660254,0.5,-0.5,0.8660254,63.39746,-36.60254)"
+         id="use142"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <use
+         xlink:href="#fiveMinutesStrokesDIN41091.4"
+         transform="matrix(0.5,0.8660254,-0.8660254,0.5,136.60254,-36.60254)"
+         id="use144"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+    </symbol>
+    <!-- visible dial circle -->
+    <clipPath
+       id="dialCircle">
+      <circle
+         cx="100"
+         cy="100"
+         r="100"
+         id="circle147" />
+    </clipPath>
+  </defs>
+  <!-- clock -->
+  <g
+     style="visibility:hidden;fill:#222222"
+     id="minuteHand"
+     transform="scale(4.4291339,4.4291339)">
+    <g
+       id="minuteHandSwiss">
+      <polygon
+         id="polygon259"
+         style="stroke:none"
+         points="105,125 95,125 96,5 104,5 " />
+    </g>
+  </g>
+  <rect
+     style="opacity:1;fill:#ff00ff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     id="rect4222"
+     width="7.0866141"
+     height="7.0866141"
+     x="0"
+     y="878.74017" />
+  <rect
+     y="-4.1300854e-08"
+     x="0"
+     height="7.0866141"
+     width="7.0866141"
+     id="rect4224"
+     style="opacity:1;fill:#ff00ff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+  <rect
+     style="opacity:1;fill:#ff00ff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     id="rect4226"
+     width="7.0866141"
+     height="7.0866141"
+     x="878.74017"
+     y="-4.1300854e-08" />
+  <rect
+     y="878.74017"
+     x="878.74017"
+     height="7.0866141"
+     width="7.0866141"
+     id="rect4228"
+     style="opacity:1;fill:#ff00ff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+</svg>
