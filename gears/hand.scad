@@ -3,6 +3,7 @@ $fn = 100;
 use <movement.scad>
 
 SIZE = inch(10.75);
+SECOND_DIAMETER = 3.47;
 
 module makeShape(hand) {
   intersection() {
@@ -17,7 +18,7 @@ module makeHand(hand) {
     difference() {
       union() {
         makeShape(hand);
-        translate([0,0,1]) cylinder(r=(SECOND_DIAMETER+1.25)/2, h=6);
+        translate([0,0,1]) cylinder(r=(SECOND_DIAMETER+1.25)/2, h=5);
       }
       translate([0,0,3]) cylinder(r=SECOND_DIAMETER/2, h=20);
     }
@@ -34,6 +35,6 @@ module makeHand(hand) {
   }
 }
 
-dohand = "hour";
+dohand = "second";
 
 makeHand(dohand);

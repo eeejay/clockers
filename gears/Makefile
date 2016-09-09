@@ -3,15 +3,13 @@ FIX_SVG_UNITS=sed -i 's/svg width="\([0-9]\+\)" height="\([0-9]\+\)"/svg width="
 clean:
 	rm -f *.stl *.gcode *.dxf *.ps *.eps clockers-*.svg
 
-hourgears: clockers-hourgears.stl
+gears: clockers-hourgears.stl clockers-minutegears.stl clockers-secondgears.stl
 
-minutegears: clockers-minutegears.stl
+bracket: clockers-topbracket.stl clockers-bottombracket.stl clockers-sensorclamps.stl
 
-secondgears: clockers-secondgears.stl
+mounts: clockers-motodriversmount.stl clockers-pimount.stl
 
-topbracket: clockers-topbracket.stl
-
-bottombracket: clockers-bottombracket.stl
+hands: clockers-hourhand.stl clockers-minutehand.stl clockers-secondhand.stl
 
 clockers-hourgears.stl: movement.scad parts.scad
 	openscad -o $@ -D 'mode="hourgears"' parts.scad
